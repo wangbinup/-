@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据库图标设计</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .icon-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .icon-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .icon-container {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .icon-description {
+            color: #666;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* 数据库图标样式 */
+        .database-icon-1 {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .database-icon-1::before {
+            content: '';
+            width: 60px;
+            height: 40px;
+            background: white;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+        }
+
+        .database-icon-1::after {
+            content: '';
+            width: 40px;
+            height: 30px;
+            background: white;
+            border-radius: 6px 6px 0 0;
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .database-icon-2 {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+        }
+
+        .database-icon-2::before {
+            content: '';
+            width: 50px;
+            height: 35px;
+            background: white;
+            border-radius: 6px;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .database-icon-2::after {
+            content: '';
+            width: 30px;
+            height: 25px;
+            background: white;
+            border-radius: 4px;
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .database-icon-3 {
+            background: linear-gradient(135deg, #FF6B6B, #ee5a52);
+        }
+
+        .database-icon-3::before {
+            content: '';
+            width: 55px;
+            height: 38px;
+            background: white;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .database-icon-3::after {
+            content: '';
+            width: 35px;
+            height: 28px;
+            background: white;
+            border-radius: 6px;
+            position: absolute;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .database-icon-4 {
+            background: linear-gradient(135deg, #FFA726, #FF9800);
+        }
+
+        .database-icon-4::before {
+            content: '';
+            width: 48px;
+            height: 32px;
+            background: white;
+            border-radius: 6px;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .database-icon-4::after {
+            content: '';
+            width: 28px;
+            height: 22px;
+            background: white;
+            border-radius: 4px;
+            position: absolute;
+            top: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .database-icon-5 {
+            background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+        }
+
+        .database-icon-5::before {
+            content: '';
+            width: 52px;
+            height: 36px;
+            background: white;
+            border-radius: 7px;
+            position: relative;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
+        }
+
+        .database-icon-5::after {
+            content: '';
+            width: 32px;
+            height: 26px;
+            background: white;
+            border-radius: 5px;
+            position: absolute;
+            top: 19px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
+        }
+
+        .database-icon-6 {
+            background: linear-gradient(135deg, #00BCD4, #0097A7);
+        }
+
+        .database-icon-6::before {
+            content: '';
+            width: 54px;
+            height: 37px;
+            background: white;
+            border-radius: 7px;
+            position: relative;
+            box-shadow: 0 3px 11px rgba(0, 0, 0, 0.16);
+        }
+
+        .database-icon-6::after {
+            content: '';
+            width: 34px;
+            height: 27px;
+            background: white;
+            border-radius: 5px;
+            position: absolute;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 3px 11px rgba(0, 0, 0, 0.16);
+        }
+
+        /* 推荐图标样式 */
+        .recommended {
+            border: 3px solid #4CAF50;
+            position: relative;
+        }
+
+        .recommended::before {
+            content: '推荐';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4CAF50;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .comparison {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-top: 40px;
+        }
+
+        .comparison h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .comparison-item {
+            text-align: center;
+            padding: 20px;
+            border-radius: 15px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .comparison-item:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .comparison-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .comparison-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .comparison-desc {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .icon-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>数据库图标设计</h1>
+            <p>基于CIOES系列图标风格的数据库图标设计方案</p>
+        </div>
+
+        <div class="icon-grid">
+            <!-- 推荐方案 -->
+            <div class="icon-card recommended">
+                <div class="icon-container database-icon-1"></div>
+                <div class="icon-title">CIOES-Database</div>
+                <div class="icon-description">
+                    采用蓝紫色渐变背景，白色数据库图标，体现数据存储的层次感和专业性。
+                    符合CIOES系列的整体设计风格，简洁明了。
+                </div>
+            </div>
+
+            <!-- 绿色方案 -->
+            <div class="icon-card">
+                <div class="icon-container database-icon-2"></div>
+                <div class="icon-title">CIOES-DataStore</div>
+                <div class="icon-description">
+                    绿色渐变背景，象征数据的安全性和稳定性。
+                    白色数据库图标，层次分明，视觉效果突出。
+                </div>
+            </div>
+
+            <!-- 红色方案 -->
+            <div class="icon-card">
+                <div class="icon-container database-icon-3"></div>
+                <div class="icon-title">CIOES-DataCore</div>
+                <div class="icon-description">
+                    红色渐变背景，体现数据的重要性和核心地位。
+                    白色图标设计，对比强烈，易于识别。
+                </div>
+            </div>
+
+            <!-- 橙色方案 -->
+            <div class="icon-card">
+                <div class="icon-container database-icon-4"></div>
+                <div class="icon-title">CIOES-DataFlow</div>
+                <div class="icon-description">
+                    橙色渐变背景，象征数据的流动性和活跃性。
+                    白色数据库图标，体现数据的层次结构。
+                </div>
+            </div>
+
+            <!-- 紫色方案 -->
+            <div class="icon-card">
+                <div class="icon-container database-icon-5"></div>
+                <div class="icon-title">CIOES-DataHub</div>
+                <div class="icon-description">
+                    紫色渐变背景，体现数据的神秘性和高端感。
+                    白色图标设计，突出数据中心的地位。
+                </div>
+            </div>
+
+            <!-- 青色方案 -->
+            <div class="icon-card">
+                <div class="icon-container database-icon-6"></div>
+                <div class="icon-title">CIOES-DataCloud</div>
+                <div class="icon-description">
+                    青色渐变背景，象征数据的云端存储和现代化。
+                    白色数据库图标，体现云数据的特点。
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison">
+            <h2>设计理念对比</h2>
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <div class="comparison-icon database-icon-1"></div>
+                    <div class="comparison-title">专业风格</div>
+                    <div class="comparison-desc">
+                        蓝紫色渐变体现专业性，适合企业级数据库应用
+                    </div>
+                </div>
+                <div class="comparison-item">
+                    <div class="comparison-icon database-icon-2"></div>
+                    <div class="comparison-title">安全可靠</div>
+                    <div class="comparison-desc">
+                        绿色象征安全和稳定，适合数据存储系统
+                    </div>
+                </div>
+                <div class="comparison-item">
+                    <div class="comparison-icon database-icon-3"></div>
+                    <div class="comparison-title">核心重要</div>
+                    <div class="comparison-desc">
+                        红色体现重要性，适合核心数据库系统
+                    </div>
+                </div>
+                <div class="comparison-item">
+                    <div class="comparison-icon database-icon-4"></div>
+                    <div class="comparison-title">活跃流动</div>
+                    <div class="comparison-desc">
+                        橙色象征活跃性，适合数据处理系统
+                    </div>
+                </div>
+                <div class="comparison-item">
+                    <div class="comparison-icon database-icon-5"></div>
+                    <div class="comparison-title">高端神秘</div>
+                    <div class="comparison-desc">
+                        紫色体现高端感，适合高级数据分析
+                    </div>
+                </div>
+                <div class="comparison-item">
+                    <div class="comparison-icon database-icon-6"></div>
+                    <div class="comparison-title">现代云端</div>
+                    <div class="comparison-desc">
+                        青色象征现代化，适合云数据库服务
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 添加交互效果
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.icon-card');
+            
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+                
+                // 点击选择
+                card.addEventListener('click', function() {
+                    // 移除其他卡片的选中状态
+                    cards.forEach(c => c.style.border = '');
+                    
+                    // 添加选中效果
+                    this.style.border = '3px solid #4CAF50';
+                    this.style.boxShadow = '0 15px 40px rgba(76, 175, 80, 0.3)';
+                    
+                    // 显示选中信息
+                    const title = this.querySelector('.icon-title').textContent;
+                    console.log(`选择了: ${title}`);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

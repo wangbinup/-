@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海管设计数据 - 海工数据库管理系统</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 客户端软件风格 */
+        body {
+            background: #f0f2f5;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .app-container {
+            background: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .title-bar {
+            background: #2c3e50;
+            color: white;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+        }
+
+        .title-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .main-content {
+            height: calc(100vh - 40px);
+            display: flex;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 250px;
+            background: #f8f9fa;
+            border-right: 1px solid #e1e8ed;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid #e1e8ed;
+            background: #ffffff;
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .nav-menu {
+            padding: 8px 0;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #f1f5f9;
+        }
+
+        .nav-item.active {
+            background: #3b82f6;
+            color: white;
+            border-left-color: #1d4ed8;
+        }
+
+        .nav-item i {
+            margin-right: 8px;
+            width: 16px;
+        }
+
+        /* 主内容区域 */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 工具栏 */
+        .toolbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e1e8ed;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toolbar-btn {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            color: #374151;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .toolbar-btn:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
+        .toolbar-btn.primary {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+
+        .toolbar-btn.primary:hover {
+            background: #2563eb;
+        }
+
+        /* Sheet页面容器 */
+        .sheet-container {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .sheet-container.active {
+            display: block;
+        }
+
+        .content-header {
+            margin-bottom: 20px;
+        }
+
+        .content-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0 0 8px 0;
+        }
+
+        .content-description {
+            color: #64748b;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .content-body {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        /* 表单样式 */
+        .form-section {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0 0 16px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            border-color: #d1d5db;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 标题栏 -->
+        <div class="title-bar">
+            <div class="title-left">
+                <button class="back-btn" onclick="goBackToMain()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <span>海管设计数据</span>
+            </div>
+            <div class="title-right">
+                <button class="back-btn" onclick="goBackToMain()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 主要内容区域 -->
+        <div class="main-content">
+            <!-- 侧边栏 -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h3 class="sidebar-title">海管设计管理</h3>
+                </div>
+                <div class="nav-menu">
+                    <div class="nav-item active" data-sheet="sheet1">
+                        <i class="fas fa-route"></i>
+                        路由设计
+                    </div>
+                    <div class="nav-item" data-sheet="sheet2">
+                        <i class="fas fa-layer-group"></i>
+                        截面设计
+                    </div>
+                    <div class="nav-item" data-sheet="sheet3">
+                        <i class="fas fa-tools"></i>
+                        保护设计
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主内容区域 -->
+            <div class="content-area">
+                <!-- 工具栏 -->
+                <div class="toolbar">
+                    <button class="toolbar-btn primary">
+                        <i class="fas fa-save"></i>
+                        保存
+                    </button>
+                    <button class="toolbar-btn">
+                        <i class="fas fa-plus"></i>
+                        新建
+                    </button>
+                    <button class="toolbar-btn">
+                        <i class="fas fa-edit"></i>
+                        编辑
+                    </button>
+                    <button class="toolbar-btn">
+                        <i class="fas fa-trash"></i>
+                        删除
+                    </button>
+                </div>
+
+                <!-- Sheet页面内容 -->
+                <!-- 路由设计 -->
+                <div class="sheet-container active" id="sheet1">
+                    <div class="content-header">
+                        <h2 class="content-title">路由设计</h2>
+                        <p class="content-description">路由关键点信息和管道设计工况管理</p>
+                    </div>
+                    <div class="content-body">
+                        <div class="form-section">
+                            <h3 class="section-title">路由关键点信息</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">关键点名称</label>
+                                    <input type="text" class="form-input" placeholder="请输入关键点名称">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">关键点编号</label>
+                                    <input type="text" class="form-input" placeholder="请输入关键点编号">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">经度坐标</label>
+                                    <input type="number" step="0.000001" class="form-input" placeholder="请输入经度坐标">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">纬度坐标</label>
+                                    <input type="number" step="0.000001" class="form-input" placeholder="请输入纬度坐标">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">水深 (m)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入水深">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">关键点类型</label>
+                                    <select class="form-select">
+                                        <option>请选择关键点类型</option>
+                                        <option>起点</option>
+                                        <option>终点</option>
+                                        <option>转弯点</option>
+                                        <option>连接点</option>
+                                        <option>控制点</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">坐标系统</label>
+                                    <input type="text" class="form-input" placeholder="请输入坐标系统">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">备注信息</label>
+                                    <textarea class="form-textarea" placeholder="请输入备注信息"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="section-title">管道设计工况</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">工况名称</label>
+                                    <input type="text" class="form-input" placeholder="请输入工况名称">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">工况类型</label>
+                                    <select class="form-select">
+                                        <option>请选择工况类型</option>
+                                        <option>正常运行</option>
+                                        <option>启动工况</option>
+                                        <option>停运工况</option>
+                                        <option>紧急工况</option>
+                                        <option>极端工况</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">设计压力 (MPa)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入设计压力">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">设计温度 (°C)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入设计温度">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">流量 (m³/h)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入流量">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">流速 (m/s)</label>
+                                    <input type="number" step="0.01" class="form-input" placeholder="请输入流速">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">环境条件</label>
+                                    <select class="form-select">
+                                        <option>请选择环境条件</option>
+                                        <option>正常环境</option>
+                                        <option>腐蚀环境</option>
+                                        <option>高温环境</option>
+                                        <option>低温环境</option>
+                                        <option>高压环境</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">安全系数</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入安全系数">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">设计标准</label>
+                                    <input type="text" class="form-input" placeholder="请输入设计标准">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">备注信息</label>
+                                    <textarea class="form-textarea" placeholder="请输入备注信息"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary">保存</button>
+                            <button class="btn btn-secondary">重置</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 截面设计 -->
+                <div class="sheet-container" id="sheet2">
+                    <div class="content-header">
+                        <h2 class="content-title">截面设计</h2>
+                        <p class="content-description">管道截面信息和涂层信息管理</p>
+                    </div>
+                    <div class="content-body">
+                        <div class="form-section">
+                            <h3 class="section-title">管道截面信息</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">管道名称</label>
+                                    <input type="text" class="form-input" placeholder="请输入管道名称">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">管道规格</label>
+                                    <input type="text" class="form-input" placeholder="请输入管道规格">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">外径 (mm)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入外径">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">壁厚 (mm)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入壁厚">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">内径 (mm)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入内径">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">截面面积 (mm²)</label>
+                                    <input type="number" step="0.01" class="form-input" placeholder="请输入截面面积">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">惯性矩 (mm⁴)</label>
+                                    <input type="number" step="0.01" class="form-input" placeholder="请输入惯性矩">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">截面模量 (mm³)</label>
+                                    <input type="number" step="0.01" class="form-input" placeholder="请输入截面模量">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">重量 (kg/m)</label>
+                                    <input type="number" step="0.01" class="form-input" placeholder="请输入重量">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">材质</label>
+                                    <input type="text" class="form-input" placeholder="请输入材质">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">标准</label>
+                                    <input type="text" class="form-input" placeholder="请输入标准">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="section-title">涂层信息</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">涂层类型</label>
+                                    <select class="form-select">
+                                        <option>请选择涂层类型</option>
+                                        <option>环氧涂层</option>
+                                        <option>聚氨酯涂层</option>
+                                        <option>聚乙烯涂层</option>
+                                        <option>聚丙烯涂层</option>
+                                        <option>复合涂层</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">涂层厚度 (μm)</label>
+                                    <input type="number" step="1" class="form-input" placeholder="请输入涂层厚度">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">涂层颜色</label>
+                                    <input type="text" class="form-input" placeholder="请输入涂层颜色">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">防腐等级</label>
+                                    <select class="form-select">
+                                        <option>请选择防腐等级</option>
+                                        <option>C1</option>
+                                        <option>C2</option>
+                                        <option>C3</option>
+                                        <option>C4</option>
+                                        <option>C5</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">附着力 (MPa)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入附着力">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">硬度</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入硬度">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">耐冲击性 (J)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入耐冲击性">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">耐盐雾性 (h)</label>
+                                    <input type="number" step="1" class="form-input" placeholder="请输入耐盐雾性">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">供应商</label>
+                                    <input type="text" class="form-input" placeholder="请输入供应商">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">备注信息</label>
+                                    <textarea class="form-textarea" placeholder="请输入备注信息"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary">保存</button>
+                            <button class="btn btn-secondary">重置</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 保护设计 -->
+                <div class="sheet-container" id="sheet3">
+                    <div class="content-header">
+                        <h2 class="content-title">保护设计</h2>
+                        <p class="content-description">锚固件类型/位置、挖沟和保护信息、许用悬垮长度管理</p>
+                    </div>
+                    <div class="content-body">
+                        <div class="form-section">
+                            <h3 class="section-title">锚固件类型/位置</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">锚固件名称</label>
+                                    <input type="text" class="form-input" placeholder="请输入锚固件名称">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">锚固件类型</label>
+                                    <select class="form-select">
+                                        <option>请选择锚固件类型</option>
+                                        <option>混凝土锚固</option>
+                                        <option>钢桩锚固</option>
+                                        <option>重力锚固</option>
+                                        <option>桩基锚固</option>
+                                        <option>复合锚固</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">安装位置</label>
+                                    <input type="text" class="form-input" placeholder="请输入安装位置">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">经度坐标</label>
+                                    <input type="number" step="0.000001" class="form-input" placeholder="请输入经度坐标">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">纬度坐标</label>
+                                    <input type="number" step="0.000001" class="form-input" placeholder="请输入纬度坐标">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">锚固力 (kN)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入锚固力">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">锚固深度 (m)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入锚固深度">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">锚固间距 (m)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入锚固间距">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">安装日期</label>
+                                    <input type="date" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">备注信息</label>
+                                    <textarea class="form-textarea" placeholder="请输入备注信息"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="section-title">挖沟和保护信息</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">挖沟深度 (m)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入挖沟深度">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">挖沟宽度 (m)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入挖沟宽度">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">挖沟方法</label>
+                                    <select class="form-select">
+                                        <option>请选择挖沟方法</option>
+                                        <option>机械挖沟</option>
+                                        <option>水力挖沟</option>
+                                        <option>爆破挖沟</option>
+                                        <option>人工挖沟</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">保护措施</label>
+                                    <select class="form-select">
+                                        <option>请选择保护措施</option>
+                                        <option>混凝土保护</option>
+                                        <option>碎石保护</option>
+                                        <option>沙袋保护</option>
+                                        <option>钢板保护</option>
+                                        <option>复合保护</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">保护层厚度 (m)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入保护层厚度">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">保护材料</label>
+                                    <input type="text" class="form-input" placeholder="请输入保护材料">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">施工日期</label>
+                                    <input type="date" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">备注信息</label>
+                                    <textarea class="form-textarea" placeholder="请输入备注信息"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="section-title">许用悬垮长度</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">悬垮长度 (m)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入悬垮长度">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">许用悬垮长度 (m)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入许用悬垮长度">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">悬垮类型</label>
+                                    <select class="form-select">
+                                        <option>请选择悬垮类型</option>
+                                        <option>自由悬垮</option>
+                                        <option>支撑悬垮</option>
+                                        <option>锚固悬垮</option>
+                                        <option>复合悬垮</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">设计荷载 (kN/m)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入设计荷载">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">安全系数</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="请输入安全系数">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">设计标准</label>
+                                    <input type="text" class="form-input" placeholder="请输入设计标准">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">备注信息</label>
+                                    <textarea class="form-textarea" placeholder="请输入备注信息"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary">保存</button>
+                            <button class="btn btn-secondary">重置</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载时处理URL hash参数
+        function handleUrlHash() {
+            const hash = window.location.hash.substring(1); // 去掉#号
+            if (hash) {
+                // 移除所有active类
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                document.querySelectorAll('.sheet-container').forEach(sheet => sheet.classList.remove('active'));
+                
+                // 根据hash找到对应的导航项并激活
+                const targetNav = document.querySelector(`[data-sheet="${hash}"]`);
+                if (targetNav) {
+                    targetNav.classList.add('active');
+                    document.getElementById(hash).classList.add('active');
+                }
+            }
+        }
+
+        // 页面加载时执行
+        document.addEventListener('DOMContentLoaded', handleUrlHash);
+
+        // 监听hash变化
+        window.addEventListener('hashchange', handleUrlHash);
+
+        // 导航菜单切换
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 移除所有active类
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                document.querySelectorAll('.sheet-container').forEach(sheet => sheet.classList.remove('active'));
+                
+                // 添加active类到当前项
+                this.classList.add('active');
+                
+                // 显示对应的sheet页面
+                const sheetId = this.getAttribute('data-sheet');
+                document.getElementById(sheetId).classList.add('active');
+                
+                // 更新URL hash
+                window.location.hash = sheetId;
+            });
+        });
+
+        // 通用退出功能 - 返回到数据库主界面
+        function goBackToMain() {
+            window.location.href = '数据库主界面V2.html';
+        }
+
+        // 工具栏按钮事件
+        document.querySelectorAll('.toolbar-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.textContent.trim();
+                console.log(`执行操作: ${action}`);
+                
+                switch(action) {
+                    case '保存':
+                        alert('保存成功！');
+                        break;
+                    case '新建':
+                        alert('新建项目...');
+                        break;
+                    case '编辑':
+                        alert('进入编辑模式...');
+                        break;
+                    case '删除':
+                        if(confirm('确定要删除吗？')) {
+                            alert('删除成功！');
+                        }
+                        break;
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

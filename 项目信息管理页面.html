@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目信息管理 - 海工数据库管理系统</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 客户端软件风格 */
+        body {
+            background: #f0f2f5;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .app-container {
+            background: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .title-bar {
+            background: #2c3e50;
+            color: white;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+        }
+
+        .title-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .main-content {
+            height: calc(100vh - 40px);
+            display: flex;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 250px;
+            background: #f8f9fa;
+            border-right: 1px solid #e1e8ed;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid #e1e8ed;
+            background: #ffffff;
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .nav-menu {
+            padding: 8px 0;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #f1f5f9;
+        }
+
+        .nav-item.active {
+            background: #3b82f6;
+            color: white;
+            border-left-color: #1d4ed8;
+        }
+
+        .nav-item i {
+            margin-right: 8px;
+            width: 16px;
+        }
+
+        /* 主内容区域 */
+        .content-area {
+            flex: 1;
+            background: #ffffff;
+            overflow-y: auto;
+        }
+
+        .content-header {
+            padding: 20px;
+            border-bottom: 1px solid #e1e8ed;
+            background: #ffffff;
+        }
+
+        .content-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0 0 8px 0;
+        }
+
+        .content-description {
+            color: #64748b;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .content-body {
+            padding: 20px;
+        }
+
+        /* Sheet页面样式 */
+        .sheet-container {
+            display: none;
+        }
+
+        .sheet-container.active {
+            display: block;
+        }
+
+        /* 表单样式 */
+        .form-section {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0 0 16px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 13px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 13px;
+            background: #ffffff;
+        }
+
+        /* 按钮样式 */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #f3f4f6;
+        }
+
+        /* 数据表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .data-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+            font-size: 12px;
+        }
+
+        .data-table td {
+            font-size: 13px;
+            color: #1e293b;
+        }
+
+        /* 工具栏 */
+        .toolbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e1e8ed;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toolbar-btn {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            color: #374151;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .toolbar-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .toolbar-btn.primary {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+
+        .toolbar-btn.primary:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 标题栏 -->
+        <div class="title-bar">
+            <div class="title-left">
+                <button class="back-btn" onclick="goBackToMain()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <span>项目信息管理</span>
+            </div>
+            <div class="title-right">
+                <button class="back-btn" onclick="goBackToMain()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 主要内容区域 -->
+        <div class="main-content">
+            <!-- 侧边栏 -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h3 class="sidebar-title">项目管理</h3>
+                </div>
+                <div class="nav-menu">
+                    <div class="nav-item active" data-sheet="basic-info">
+                        <i class="fas fa-info-circle"></i>
+                        项目基础信息
+                    </div>
+                    <div class="nav-item" data-sheet="detailed-info">
+                        <i class="fas fa-file-alt"></i>
+                        项目详细信息
+                    </div>
+                    <div class="nav-item" data-sheet="pipeline-info">
+                        <i class="fas fa-project-diagram"></i>
+                        项目管段信息
+                    </div>
+                    <div class="nav-item" data-sheet="custom-info">
+                        <i class="fas fa-edit"></i>
+                        其他输入信息
+                    </div>
+                    <div class="nav-item" data-sheet="geo-code">
+                        <i class="fas fa-map-marker-alt"></i>
+                        地理编码
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主内容区域 -->
+            <div class="content-area">
+                <!-- 工具栏 -->
+                <div class="toolbar">
+                    <button class="toolbar-btn primary">
+                        <i class="fas fa-save"></i>
+                        保存
+                    </button>
+                    <button class="toolbar-btn">
+                        <i class="fas fa-plus"></i>
+                        新建
+                    </button>
+                    <button class="toolbar-btn">
+                        <i class="fas fa-edit"></i>
+                        编辑
+                    </button>
+                    <button class="toolbar-btn">
+                        <i class="fas fa-trash"></i>
+                        删除
+                    </button>
+                </div>
+
+                <!-- Sheet页面内容 -->
+                <!-- 项目基础信息 -->
+                <div class="sheet-container active" id="basic-info">
+                    <div class="content-header">
+                        <h2 class="content-title">项目基础信息</h2>
+                        <p class="content-description">管理项目的基本信息，包括项目名称、地理位置、平台信息等</p>
+                    </div>
+                    <div class="content-body">
+                        <div class="form-section">
+                            <h3 class="section-title">基本信息</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">项目名称</label>
+                                    <input type="text" class="form-input" placeholder="请输入项目名称">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">项目编号</label>
+                                    <input type="text" class="form-input" placeholder="请输入项目编号">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">项目类型</label>
+                                    <select class="form-select">
+                                        <option>请选择项目类型</option>
+                                        <option>海底管道</option>
+                                        <option>海底电缆</option>
+                                        <option>海底设施</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">项目状态</label>
+                                    <select class="form-select">
+                                        <option>请选择项目状态</option>
+                                        <option>规划中</option>
+                                        <option>设计中</option>
+                                        <option>施工中</option>
+                                        <option>运营中</option>
+                                        <option>已完成</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="section-title">地理位置</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">起始平台</label>
+                                    <input type="text" class="form-input" placeholder="请输入起始平台名称">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">终止平台</label>
+                                    <input type="text" class="form-input" placeholder="请输入终止平台名称">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">起始坐标</label>
+                                    <input type="text" class="form-input" placeholder="纬度,经度">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">终止坐标</label>
+                                    <input type="text" class="form-input" placeholder="纬度,经度">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary">保存信息</button>
+                            <button class="btn btn-secondary">重置</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 项目详细信息 -->
+                <div class="sheet-container" id="detailed-info">
+                    <div class="content-header">
+                        <h2 class="content-title">项目详细信息</h2>
+                        <p class="content-description">管理项目的详细描述、技术参数、报告模板等</p>
+                    </div>
+                    <div class="content-body">
+                        <div class="form-section">
+                            <h3 class="section-title">项目描述</h3>
+                            <div class="form-group">
+                                <label class="form-label">项目描述</label>
+                                <textarea class="form-input form-textarea" placeholder="请输入项目详细描述..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="section-title">技术参数</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">设计压力</label>
+                                    <input type="text" class="form-input" placeholder="MPa">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">设计温度</label>
+                                    <input type="text" class="form-input" placeholder="°C">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">管道长度</label>
+                                    <input type="text" class="form-input" placeholder="km">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">水深范围</label>
+                                    <input type="text" class="form-input" placeholder="m">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="section-title">报告模板</h3>
+                            <div class="form-group">
+                                <label class="form-label">选择报告模板</label>
+                                <select class="form-select">
+                                    <option>请选择报告模板</option>
+                                    <option>标准项目报告</option>
+                                    <option>技术评估报告</option>
+                                    <option>环境影响报告</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary">保存信息</button>
+                            <button class="btn btn-secondary">重置</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 项目管段信息 -->
+                <div class="sheet-container" id="pipeline-info">
+                    <div class="content-header">
+                        <h2 class="content-title">项目管段信息</h2>
+                        <p class="content-description">管理管道分段、规格、材料等详细信息</p>
+                    </div>
+                    <div class="content-body">
+                        <div class="form-section">
+                            <h3 class="section-title">管段列表</h3>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>管段编号</th>
+                                        <th>起始点</th>
+                                        <th>终止点</th>
+                                        <th>长度(km)</th>
+                                        <th>管径(mm)</th>
+                                        <th>壁厚(mm)</th>
+                                        <th>材料等级</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>PS001</td>
+                                        <td>平台A</td>
+                                        <td>平台B</td>
+                                        <td>15.2</td>
+                                        <td>508</td>
+                                        <td>12.7</td>
+                                        <td>X65</td>
+                                        <td>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;">编辑</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>PS002</td>
+                                        <td>平台B</td>
+                                        <td>平台C</td>
+                                        <td>8.5</td>
+                                        <td>406</td>
+                                        <td>10.3</td>
+                                        <td>X60</td>
+                                        <td>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;">编辑</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary">添加管段</button>
+                            <button class="btn btn-secondary">导出数据</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 其他输入信息 -->
+                <div class="sheet-container" id="custom-info">
+                    <div class="content-header">
+                        <h2 class="content-title">其他输入信息</h2>
+                        <p class="content-description">预留自定义信息模板，可根据项目需要添加自定义字段</p>
+                    </div>
+                    <div class="content-body">
+                        <div class="form-section">
+                            <h3 class="section-title">自定义字段</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">字段名称</label>
+                                    <input type="text" class="form-input" placeholder="请输入字段名称">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">字段类型</label>
+                                    <select class="form-select">
+                                        <option>文本</option>
+                                        <option>数字</option>
+                                        <option>日期</option>
+                                        <option>选择</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 16px;">
+                                <label class="form-label">字段值</label>
+                                <input type="text" class="form-input" placeholder="请输入字段值">
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary">添加字段</button>
+                            <button class="btn btn-secondary">清除</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 地理编码 -->
+                <div class="sheet-container" id="geo-code">
+                    <div class="content-header">
+                        <h2 class="content-title">地理编码</h2>
+                        <p class="content-description">管理渤海地区、东海地区、南海地区编码信息</p>
+                    </div>
+                    <div class="content-body">
+                        <div class="form-section">
+                            <h3 class="section-title">地区编码</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">渤海地区编码</label>
+                                    <input type="text" class="form-input" placeholder="BH001">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">东海地区编码</label>
+                                    <input type="text" class="form-input" placeholder="DH001">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">南海地区编码</label>
+                                    <input type="text" class="form-input" placeholder="NH001">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">区域描述</label>
+                                    <input type="text" class="form-input" placeholder="请输入区域描述">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="section-title">坐标范围</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">北纬</label>
+                                    <input type="text" class="form-input" placeholder="纬度范围">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">东经</label>
+                                    <input type="text" class="form-input" placeholder="经度范围">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">水深范围</label>
+                                    <input type="text" class="form-input" placeholder="水深范围(m)">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">面积</label>
+                                    <input type="text" class="form-input" placeholder="平方公里">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary">保存编码</button>
+                            <button class="btn btn-secondary">验证</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载时处理URL hash参数
+        function handleUrlHash() {
+            const hash = window.location.hash.substring(1); // 去掉#号
+            if (hash) {
+                // 移除所有active类
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                document.querySelectorAll('.sheet-container').forEach(sheet => sheet.classList.remove('active'));
+                
+                // 根据hash找到对应的导航项并激活
+                const targetNav = document.querySelector(`[data-sheet="${hash}"]`);
+                if (targetNav) {
+                    targetNav.classList.add('active');
+                    document.getElementById(hash).classList.add('active');
+                }
+            }
+        }
+
+        // 页面加载时执行
+        document.addEventListener('DOMContentLoaded', handleUrlHash);
+
+        // 监听hash变化
+        window.addEventListener('hashchange', handleUrlHash);
+
+        // 导航菜单切换
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 移除所有active类
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                document.querySelectorAll('.sheet-container').forEach(sheet => sheet.classList.remove('active'));
+                
+                // 添加active类到当前项
+                this.classList.add('active');
+                
+                // 显示对应的sheet页面
+                const sheetId = this.getAttribute('data-sheet');
+                document.getElementById(sheetId).classList.add('active');
+                
+                // 更新URL hash
+                window.location.hash = sheetId;
+            });
+        });
+
+        // 返回主页面
+        function goBack() {
+            // 直接返回到数据库主界面
+            window.location.href = '数据库主界面V2.html';
+        }
+        
+        // 通用退出功能
+        function goBackToMain() {
+            window.location.href = '数据库主界面V2.html';
+        }
+
+        // 工具栏按钮事件
+        document.querySelectorAll('.toolbar-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.textContent.trim();
+                console.log(`执行操作: ${action}`);
+                
+                switch(action) {
+                    case '保存':
+                        alert('保存成功！');
+                        break;
+                    case '新建':
+                        alert('新建项目...');
+                        break;
+                    case '编辑':
+                        alert('进入编辑模式...');
+                        break;
+                    case '删除':
+                        if(confirm('确定要删除吗？')) {
+                            alert('删除成功！');
+                        }
+                        break;
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
