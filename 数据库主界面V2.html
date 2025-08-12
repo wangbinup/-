@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海工数据库管理系统 V2.0.0</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* V2版本：客户端软件风格 */
+        body {
+            background: #f0f2f5;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        .app-container {
+            background: #ffffff;
+            border-radius: 0;
+            box-shadow: none;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .title-bar {
+            background: #2c3e50;
+            color: white;
+            height: 40px;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .app-icon {
+            background: #3498db;
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
+        }
+
+        .app-title {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .main-content {
+            background: #f8f9fa;
+            padding: 0;
+            height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+
+        /* 工具栏样式 */
+        .toolbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e1e8ed;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            height: 48px;
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 12px;
+            border-right: 1px solid #e1e8ed;
+        }
+
+        .toolbar-group:last-child {
+            border-right: none;
+        }
+
+        .toolbar-btn {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            color: #374151;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .toolbar-btn:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
+        .toolbar-btn.primary {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+
+        .toolbar-btn.primary:hover {
+            background: #2563eb;
+        }
+
+        /* 搜索栏 */
+        .search-container {
+            background: #ffffff;
+            border-bottom: 1px solid #e1e8ed;
+            padding: 12px 16px;
+        }
+
+        .search-bar {
+            background: #f9fafb;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 400px;
+        }
+
+        .search-input {
+            border: none;
+            outline: none;
+            background: transparent;
+            flex: 1;
+            font-size: 13px;
+            color: #374151;
+        }
+
+        .search-input::placeholder {
+            color: #9ca3af;
+        }
+
+        /* 统计面板 */
+        .stats-panel {
+            background: #ffffff;
+            border-bottom: 1px solid #e1e8ed;
+            padding: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        /* 数据模块区域 */
+        .modules-container {
+            padding: 16px;
+            background: #f8f9fa;
+            min-height: calc(100vh - 200px);
+        }
+
+        .data-modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 16px;
+        }
+
+        .data-module {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .data-module:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .module-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .module-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .module-description {
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.4;
+            margin: 8px 0;
+        }
+
+        .data-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .data-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .data-item:hover {
+            background: #f1f5f9;
+            border-color: #3b82f6;
+        }
+
+        .data-item-title {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .data-item-desc {
+            color: #64748b;
+            font-size: 10px;
+            line-height: 1.3;
+        }
+
+        /* 图标颜色 */
+        .icon-geology { background: #dc2626; }
+        .icon-seabed { background: #059669; }
+        .icon-environment { background: #0891b2; }
+        .icon-project { background: #7c3aed; }
+        .icon-pipe { background: #0ea5e9; }
+        .icon-design { background: #10b981; }
+
+        /* 状态栏 */
+        .status-bar {
+            background: #f8f9fa;
+            border-top: 1px solid #e1e8ed;
+            padding: 6px 16px;
+            font-size: 11px;
+            color: #64748b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 24px;
+        }
+
+        .status-left {
+            display: flex;
+            gap: 16px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 1200px) {
+            .data-modules-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .data-modules-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .data-items {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 标题栏 -->
+        <div class="title-bar">
+            <div class="title-left">
+                <div class="app-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <span class="app-title">海工数据库管理系统 V2.0.0</span>
+            </div>
+            <div class="title-right">
+                <div class="window-controls">
+                    <button class="control-btn minimize"><i class="fas fa-minus"></i></button>
+                    <button class="control-btn maximize"><i class="far fa-square"></i></button>
+                    <button class="control-btn close"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主要内容区域 -->
+        <div class="main-content">
+            <!-- 工具栏 -->
+            <div class="toolbar">
+                <div class="toolbar-group">
+                    <button class="toolbar-btn primary">
+                        <i class="fas fa-plus"></i>
+                        新建项目
+                    </button>
+                    <button class="toolbar-btn">
+                        <i class="fas fa-upload"></i>
+                        导入
+                    </button>
+                    <button class="toolbar-btn">
+                        <i class="fas fa-download"></i>
+                        导出
+                    </button>
+                </div>
+                
+                <div class="toolbar-group">
+                    <button class="toolbar-btn">
+                        <i class="fas fa-sync"></i>
+                        同步
+                    </button>
+                    <button class="toolbar-btn">
+                        <i class="fas fa-cog"></i>
+                        设置
+                    </button>
+                </div>
+                
+                <div class="toolbar-group">
+                    <button class="toolbar-btn">
+                        <i class="fas fa-question-circle"></i>
+                        帮助
+                    </button>
+                </div>
+            </div>
+
+            <!-- 搜索栏 -->
+            <div class="search-container">
+                <div class="search-bar">
+                    <i class="fas fa-search" style="color: #9ca3af; font-size: 12px;"></i>
+                    <input type="text" class="search-input" placeholder="搜索数据库模块、数据项或项目信息...">
+                </div>
+            </div>
+
+            <!-- 统计面板 -->
+            <div class="stats-panel">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">1,234</div>
+                        <div class="stat-label">地质土壤数据</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">567</div>
+                        <div class="stat-label">海床数据</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">890</div>
+                        <div class="stat-label">海洋环境数据</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">123</div>
+                        <div class="stat-label">项目信息</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">456</div>
+                        <div class="stat-label">管件库数据</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">789</div>
+                        <div class="stat-label">海管设计数据</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据模块区域 -->
+            <div class="modules-container">
+                <div class="data-modules-grid">
+                    <!-- 项目信息管理 -->
+                    <div class="data-module">
+                        <div class="module-header">
+                            <div class="module-icon icon-project">
+                                <i class="fas fa-project-diagram"></i>
+                            </div>
+                            <h3 class="module-title">项目信息管理</h3>
+                        </div>
+                        <div class="module-description">
+                            项目基础信息、详细信息、管段信息及其他输入信息管理
+                        </div>
+                        <div class="data-items">
+                            <div class="data-item">
+                                <div class="data-item-title">项目基础信息</div>
+                                <div class="data-item-desc">项目名称、地理位置、海管两侧平台信息</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">项目详细信息</div>
+                                <div class="data-item-desc">项目描述、项目报告模板等</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">项目管段信息</div>
+                                <div class="data-item-desc">管道分段、规格、材料等详细信息</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">其他输入信息</div>
+                                <div class="data-item-desc">预留自定义信息模板</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">地理编码</div>
+                                <div class="data-item-desc">渤海地区、东海地区、南海地区编码</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 海洋环境数据 -->
+                    <div class="data-module">
+                        <div class="module-header">
+                            <div class="module-icon icon-environment">
+                                <i class="fas fa-wind"></i>
+                            </div>
+                            <h3 class="module-title">海洋环境数据</h3>
+                        </div>
+                        <div class="module-description">
+                            包含波浪、海流、水位、温度、腐蚀因子、密度等环境参数
+                        </div>
+                        <div class="data-items">
+                            <div class="data-item">
+                                <div class="data-item-title">波浪数据</div>
+                                <div class="data-item-desc">波高、周期、方向、频谱等参数</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">海流数据</div>
+                                <div class="data-item-desc">流速、流向、垂直分布等</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">水位数据</div>
+                                <div class="data-item-desc">潮位、海平面变化等</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">温度数据</div>
+                                <div class="data-item-desc">空气温度、海水温度、海床温度</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">腐蚀因子</div>
+                                <div class="data-item-desc">海水腐蚀因子、沉积物腐蚀因子</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">海生物厚度</div>
+                                <div class="data-item-desc">海生物附着厚度及分布</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">海水密度</div>
+                                <div class="data-item-desc">不同深度、温度下的海水密度</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 地质土壤数据 -->
+                    <div class="data-module">
+                        <div class="module-header">
+                            <div class="module-icon icon-geology">
+                                <i class="fas fa-mountain"></i>
+                            </div>
+                            <h3 class="module-title">地质土壤数据</h3>
+                        </div>
+                        <div class="module-description">
+                            包含土壤采集位置、采样方式、理化指标、试验结果、土壤分析结果数据
+                        </div>
+                        <div class="data-items">
+                            <div class="data-item">
+                                <div class="data-item-title">土壤采集位置</div>
+                                <div class="data-item-desc">记录采样点的地理位置、深度、坐标信息</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">采样方式</div>
+                                <div class="data-item-desc">采样方法、设备、时间、人员等详细信息</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">理化指标</div>
+                                <div class="data-item-desc">土壤密度、含水量、孔隙率、渗透系数等</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">试验结果</div>
+                                <div class="data-item-desc">室内试验、现场试验数据及分析结果</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">土壤分析结果</div>
+                                <div class="data-item-desc">土壤分类、承载力、稳定性分析等</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 海床数据 -->
+                    <div class="data-module">
+                        <div class="module-header">
+                            <div class="module-icon icon-seabed">
+                                <i class="fas fa-water"></i>
+                            </div>
+                            <h3 class="module-title">海床数据</h3>
+                        </div>
+                        <div class="module-description">
+                            导入DTM数据或ENE数据，设施全生命周期数据管理需求
+                        </div>
+                        <div class="data-items">
+                            <div class="data-item">
+                                <div class="data-item-title">DTM数据</div>
+                                <div class="data-item-desc">数字地形模型数据，海床地形高程信息</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">ENE数据</div>
+                                <div class="data-item-desc">环境数据，海床环境参数信息</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">设施生命周期</div>
+                                <div class="data-item-desc">从设计到退役的全过程数据管理</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 管件库 -->
+                    <div class="data-module">
+                        <div class="module-header">
+                            <div class="module-icon icon-pipe">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <h3 class="module-title">管件库</h3>
+                        </div>
+                        <div class="module-description">
+                            管材库、关键库数据，包含材料等级、强度参数等
+                        </div>
+                        <div class="data-items">
+                            <div class="data-item">
+                                <div class="data-item-title">管材库数据</div>
+                                <div class="data-item-desc">管材规格和重量信息</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">关键库数据</div>
+                                <div class="data-item-desc">法兰规格和重量信息</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">材料等级</div>
+                                <div class="data-item-desc">材料分类、等级标准</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">最小屈服强度</div>
+                                <div class="data-item-desc">材料屈服强度参数</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">最小拉伸强度</div>
+                                <div class="data-item-desc">材料拉伸强度参数</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">最高屈强比</div>
+                                <div class="data-item-desc">屈服强度与拉伸强度比值</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 海管设计数据 -->
+                    <div class="data-module">
+                        <div class="module-header">
+                            <div class="module-icon icon-design">
+                                <i class="fas fa-drafting-compass"></i>
+                            </div>
+                            <h3 class="module-title">海管设计数据</h3>
+                        </div>
+                        <div class="module-description">
+                            路由关键点、管道截面、涂层、锚固件等设计参数
+                        </div>
+                        <div class="data-items">
+                            <div class="data-item">
+                                <div class="data-item-title">路由关键点信息</div>
+                                <div class="data-item-desc">管道路由关键控制点坐标</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">管道截面信息</div>
+                                <div class="data-item-desc">管道几何参数、截面特性</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">涂层信息</div>
+                                <div class="data-item-desc">防腐涂层类型、厚度、性能</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">锚固件类型/位置</div>
+                                <div class="data-item-desc">锚固件规格、安装位置</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">挖沟和保护信息</div>
+                                <div class="data-item-desc">挖沟深度、保护措施</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">许用悬垮长度</div>
+                                <div class="data-item-desc">管道悬垮设计参数</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">管道设计工况</div>
+                                <div class="data-item-desc">设计条件、荷载组合</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-item-title">管道水下重量</div>
+                                <div class="data-item-desc">水下重量、浮力计算</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 状态栏 -->
+            <div class="status-bar">
+                <div class="status-left">
+                    <div class="status-item">
+                        <i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i>
+                        就绪
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-database" style="font-size: 10px;"></i>
+                        已连接
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-clock" style="font-size: 10px;"></i>
+                        最后同步: 2024-01-15 14:30
+                    </div>
+                </div>
+                <div class="status-right">
+                    <div class="status-item">
+                        <i class="fas fa-info-circle" style="font-size: 10px;"></i>
+                        版本 V2.0.0
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class DatabaseAppV2 {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.initSearch();
+                this.initToolbar();
+                this.initDataModules();
+            }
+
+            initSearch() {
+                const searchInput = document.querySelector('.search-input');
+                if (searchInput) {
+                    searchInput.addEventListener('input', (e) => {
+                        this.handleSearch(e.target.value);
+                    });
+                }
+            }
+
+            handleSearch(query) {
+                const modules = document.querySelectorAll('.data-module');
+                const items = document.querySelectorAll('.data-item');
+                
+                if (!query.trim()) {
+                    modules.forEach(module => module.style.display = 'block');
+                    items.forEach(item => item.style.display = 'block');
+                    return;
+                }
+
+                const searchTerm = query.toLowerCase();
+                
+                modules.forEach(module => {
+                    const title = module.querySelector('.module-title').textContent.toLowerCase();
+                    const desc = module.querySelector('.module-description').textContent.toLowerCase();
+                    
+                    if (title.includes(searchTerm) || desc.includes(searchTerm)) {
+                        module.style.display = 'block';
+                        module.querySelectorAll('.data-item').forEach(item => {
+                            item.style.display = 'block';
+                        });
+                    } else {
+                        let visibleItems = 0;
+                        
+                        module.querySelectorAll('.data-item').forEach(item => {
+                            const itemTitle = item.querySelector('.data-item-title').textContent.toLowerCase();
+                            const itemDesc = item.querySelector('.data-item-desc').textContent.toLowerCase();
+                            
+                            if (itemTitle.includes(searchTerm) || itemDesc.includes(searchTerm)) {
+                                item.style.display = 'block';
+                                visibleItems++;
+                            } else {
+                                item.style.display = 'none';
+                            }
+                        });
+                        
+                        if (visibleItems > 0) {
+                            module.style.display = 'block';
+                        } else {
+                            module.style.display = 'none';
+                        }
+                    }
+                });
+            }
+
+            initToolbar() {
+                const toolbarBtns = document.querySelectorAll('.toolbar-btn');
+                toolbarBtns.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const action = e.target.textContent.trim();
+                        this.handleToolbarAction(action);
+                    });
+                });
+            }
+
+            handleToolbarAction(action) {
+                console.log(`执行工具栏操作: ${action}`);
+                
+                switch(action) {
+                    case '新建项目':
+                        this.showMessage('创建新项目...');
+                        break;
+                    case '导入':
+                        this.showMessage('打开文件导入对话框...');
+                        break;
+                    case '导出':
+                        this.showMessage('准备导出数据...');
+                        break;
+                    case '同步':
+                        this.showMessage('开始数据同步...');
+                        break;
+                    case '设置':
+                        this.showMessage('打开系统设置...');
+                        break;
+                    case '帮助':
+                        this.showMessage('打开帮助文档...');
+                        break;
+                }
+            }
+
+            initDataModules() {
+                const modules = document.querySelectorAll('.data-module');
+                modules.forEach(module => {
+                    module.addEventListener('click', () => {
+                        const title = module.querySelector('.module-title').textContent;
+                        this.openModule(title);
+                    });
+                });
+
+                const dataItems = document.querySelectorAll('.data-item');
+                dataItems.forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const title = item.querySelector('.data-item-title').textContent;
+                        this.openDataItem(title);
+                    });
+                });
+            }
+
+            openModule(moduleName) {
+                console.log(`打开模块: ${moduleName}`);
+                
+                // 根据模块名称打开对应的二级菜单页面
+                switch(moduleName) {
+                    case '项目信息管理':
+                        window.open('项目信息管理页面.html', '_blank');
+                        break;
+                    case '海洋环境数据':
+                        window.open('海洋环境数据页面.html', '_blank');
+                        break;
+                    case '地质土壤数据':
+                        window.open('地质土壤数据页面.html', '_blank');
+                        break;
+                    case '海床数据':
+                        window.open('海床数据页面.html', '_blank');
+                        break;
+                    case '管件库':
+                        window.open('管件库页面.html', '_blank');
+                        break;
+                    case '海管设计数据':
+                        window.open('海管设计数据页面.html', '_blank');
+                        break;
+                    default:
+                        this.showMessage(`正在打开 ${moduleName} 模块...`);
+                }
+            }
+
+            openModule(moduleName) {
+                console.log(`打开模块: ${moduleName}`);
+                this.showMessage(`正在打开 ${moduleName} 模块...`);
+            }
+
+            openDataItem(itemName) {
+                console.log(`打开数据项: ${itemName}`);
+                
+                // 根据数据项名称打开对应的二级菜单页面
+                switch(itemName) {
+                    // 项目信息管理的数据项
+                    case '项目基础信息':
+                        window.open('项目信息管理页面.html#basic-info', '_blank');
+                        break;
+                    case '项目详细信息':
+                        window.open('项目信息管理页面.html#detailed-info', '_blank');
+                        break;
+                    case '项目管段信息':
+                        window.open('项目信息管理页面.html#pipeline-info', '_blank');
+                        break;
+                    case '其他输入信息':
+                        window.open('项目信息管理页面.html#other-info', '_blank');
+                        break;
+                    case '地理编码':
+                        window.open('项目信息管理页面.html#geo-code', '_blank');
+                        break;
+                    
+                    // 海洋环境数据的数据项
+                    case '波浪数据':
+                        window.open('海洋环境数据页面.html#wave-data', '_blank');
+                        break;
+                    case '海流数据':
+                        window.open('海洋环境数据页面.html#current-data', '_blank');
+                        break;
+                    case '水位数据':
+                        window.open('海洋环境数据页面.html#water-level', '_blank');
+                        break;
+                    case '温度数据':
+                        window.open('海洋环境数据页面.html#temperature', '_blank');
+                        break;
+                    case '腐蚀因子':
+                        window.open('海洋环境数据页面.html#corrosion', '_blank');
+                        break;
+                    case '海生物厚度':
+                        window.open('海洋环境数据页面.html#marine-life', '_blank');
+                        break;
+                    case '海水密度':
+                        window.open('海洋环境数据页面.html#density', '_blank');
+                        break;
+                    
+                    // 地质土壤数据的数据项
+                    case '土壤采集位置':
+                        window.open('地质土壤数据页面.html#sheet1', '_blank');
+                        break;
+                    case '采样方式':
+                        window.open('地质土壤数据页面.html#sheet1', '_blank');
+                        break;
+                    case '理化指标':
+                        window.open('地质土壤数据页面.html#sheet2', '_blank');
+                        break;
+                    case '试验结果':
+                        window.open('地质土壤数据页面.html#sheet2', '_blank');
+                        break;
+                    case '土壤分析结果':
+                        window.open('地质土壤数据页面.html#sheet3', '_blank');
+                        break;
+                    
+                    // 海床数据的数据项
+                    case 'DTM数据':
+                        window.open('海床数据页面.html#sheet1', '_blank');
+                        break;
+                    case 'ENE数据':
+                        window.open('海床数据页面.html#sheet2', '_blank');
+                        break;
+                    case '设施生命周期':
+                        window.open('海床数据页面.html#sheet3', '_blank');
+                        break;
+                    
+                    // 管件库的数据项
+                    case '管材库数据':
+                        window.open('管件库页面.html#sheet1', '_blank');
+                        break;
+                    case '关键库数据':
+                        window.open('管件库页面.html#sheet2', '_blank');
+                        break;
+                    case '材料等级':
+                        window.open('管件库页面.html#sheet3', '_blank');
+                        break;
+                    case '最小屈服强度':
+                        window.open('管件库页面.html#sheet1', '_blank');
+                        break;
+                    case '最小拉伸强度':
+                        window.open('管件库页面.html#sheet2', '_blank');
+                        break;
+                    case '最高屈强比':
+                        window.open('管件库页面.html#sheet3', '_blank');
+                        break;
+                    
+                    // 海管设计数据的数据项
+                    case '路由关键点信息':
+                        window.open('海管设计数据页面.html#sheet1', '_blank');
+                        break;
+                    case '管道截面信息':
+                        window.open('海管设计数据页面.html#sheet2', '_blank');
+                        break;
+                    case '涂层信息':
+                        window.open('海管设计数据页面.html#sheet2', '_blank');
+                        break;
+                    case '锚固件类型/位置':
+                        window.open('海管设计数据页面.html#sheet3', '_blank');
+                        break;
+                    case '挖沟和保护信息':
+                        window.open('海管设计数据页面.html#sheet3', '_blank');
+                        break;
+                    case '许用悬垮长度':
+                        window.open('海管设计数据页面.html#sheet3', '_blank');
+                        break;
+                    case '管道设计工况':
+                        window.open('海管设计数据页面.html#sheet1', '_blank');
+                        break;
+                    
+                    default:
+                        this.showMessage(`正在查看 ${itemName} 详细信息...`);
+                }
+            }
+
+            showMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.style.cssText = `
+                    position: fixed;
+                    bottom: 40px;
+                    right: 20px;
+                    background: #1e293b;
+                    color: white;
+                    padding: 8px 12px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    z-index: 1000;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                `;
+                messageDiv.textContent = message;
+                
+                document.body.appendChild(messageDiv);
+                
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.parentNode.removeChild(messageDiv);
+                    }
+                }, 3000);
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            new DatabaseAppV2();
+        });
+    </script>
+</body>
+</html> 
